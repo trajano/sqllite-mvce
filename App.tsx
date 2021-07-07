@@ -16,7 +16,7 @@ export default function App() {
     return null;
   } else {
     return (
-      <DataProvider databaseName="foo">
+      <DataProvider databaseName="foobar">
         <SafeAreaProvider>
           <Navigation colorScheme={colorScheme} />
           <StatusBar />

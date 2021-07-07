@@ -7,7 +7,7 @@ export class DataStore {
     await this.db.enableForeignKeys();
     await this.db.txn(async (tx) => {
       await tx.executeSqlAsync(`
-        create table if not exists artifacts (
+        create table if not exists artifact (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             encryptedArtifactId TEXT NOT NULL,
             name TEXT NOT NULL,
@@ -17,7 +17,7 @@ export class DataStore {
 
       await tx.executeSqlAsync(`
         create unique index if not exists artifactsEncryptedArtifactId
-            on artifacts (encryptedArtifactId)
+            on artifact (encryptedArtifactId)
         `);
 
       await tx.executeSqlAsync(`
@@ -28,7 +28,7 @@ export class DataStore {
             PRIMARY KEY (artifactId, encryptedUserId),
             CONSTRAINT fk_observations
               FOREIGN KEY (artifactId)
-              REFERENCES artifacts(id)
+              REFERENCES artifact(id)
               ON DELETE CASCADE
           );
         `);

@@ -17,10 +17,10 @@ type P = { databaseName: string };
 export function DataProvider({ children, databaseName }: PropsWithChildren<P>) {
   const dbRef = useRef<DataStore>(new DataStore());
   const dataRef = useRef<any[]>([]);
-
+  const activeRef = useRef(true);
   useAsyncSetEffect(
     async () => {
-      dbRef.current.setup(databaseName);
+      await dbRef.current.setup(databaseName);
       return await dbRef.current.query();
     },
     (q) => {
@@ -29,8 +29,13 @@ export function DataProvider({ children, databaseName }: PropsWithChildren<P>) {
     []
   );
   usePollWhileOnline(async () => {
+    if (activeRef.current) {
+      return;
+    }
+    activeRef.current = true;
     await dbRef.current.add(Date.now());
-  }, 10000);
+    activeRef.current = false;
+  }, 10000, false);
   return (
     <DataContext.Provider value={{ data: dataRef.current, db: dbRef.current }}>
       {children}

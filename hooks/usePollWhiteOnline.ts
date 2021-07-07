@@ -23,7 +23,7 @@ export function usePollWhileOnline(
   const wrappedAsyncFunction = async () => {
     activeRef.current = true;
     const netInfo = await NetInfo.fetch();
-    const connected = netInfo.isConnected && netInfo.isInternetReachable;
+    const connected = netInfo.isConnected && (netInfo.isInternetReachable ?? true)
 
     if (connected) {
       try {

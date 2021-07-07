@@ -16,9 +16,9 @@ export function useAsyncSetEffect<T>(asyncFunction: (mountedRef: React.MutableRe
   if (typeof onSuccess !== 'function') {
     throw new Error('onSuccess is not a function');
   }
-  useEffect(() => {
+  useEffect(function effect() {
     mountedRef.current = true;
-    (async () => {
+    (async function wrapped() {
       const asyncResult = await asyncFunction(mountedRef);
       if (mountedRef.current) {
         onSuccess(asyncResult);
