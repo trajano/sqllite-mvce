@@ -17,13 +17,13 @@ export function DataProvider({ children, databaseName }: PropsWithChildren<P>) {
   const dbRef = useRef<DataStore>(new DataStore());
   const [initialized, setInitialized] = useState(false);
 
-  console.log("about to useAsyncSetEffect");
+  console.log("rendering", initialized);
   useAsyncSetEffect(
     async () => {
       if (!initialized) {
-      console.log("about to setup database");
-      await dbRef.current.setup(databaseName);
-      console.log("done setup database");
+        console.log("about to setup database");
+        await dbRef.current.setup(databaseName);
+        console.log("done setup database");
       }
     },
     () => {
@@ -31,12 +31,11 @@ export function DataProvider({ children, databaseName }: PropsWithChildren<P>) {
     },
     []
   );
-  console.log("about to usePollWhileOnline");
   usePollWhileOnline(async () => {
     if (initialized) {
-      console.log("about to add");
+      console.log("> add");
       await dbRef.current.add(Date.now());
-      console.log("done add");
+      console.log("< add");
     }
   }, 10000);
   if (initialized) {

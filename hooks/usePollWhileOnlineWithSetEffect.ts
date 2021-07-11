@@ -60,6 +60,7 @@ export function usePollWhileOnlineWithSetEffect<T>(
       timeoutRef.current = setTimeout(wrappedAsyncFunction, interval);
     }
     return () => {
+      clearTimeout(timeoutRef.current)
       mountedRef.current = false;
     };
   }, [asyncFunction, onSuccess]);

@@ -55,6 +55,7 @@ export function usePollWhileOnline(
       timeoutRef.current = setTimeout(wrappedAsyncFunction, interval);
     }
     return () => {
+      clearTimeout(timeoutRef.current)
       mountedRef.current = false;
     };
   }, []);
