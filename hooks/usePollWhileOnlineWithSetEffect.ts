@@ -19,7 +19,7 @@ export function usePollWhileOnlineWithSetEffect<T>(
   interval: number = 60000,
   immediate = true
 ): { activeRef: React.MutableRefObject<boolean> } {
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const timeoutRef = useRef<number>();
   const mountedRef = useRef(false);
   const activeRef = useRef(immediate);
 
@@ -47,7 +47,10 @@ export function usePollWhileOnlineWithSetEffect<T>(
       );
     }
     if (mountedRef.current) {
-      timeoutRef.current = setTimeout(wrappedAsyncFunction, interval);
+      timeoutRef.current = setTimeout(
+        wrappedAsyncFunction,
+        interval
+      ) as unknown as number;
     }
     activeRef.current = false;
   };
@@ -57,9 +60,13 @@ export function usePollWhileOnlineWithSetEffect<T>(
     if (immediate) {
       wrappedAsyncFunction();
     } else {
-      timeoutRef.current = setTimeout(wrappedAsyncFunction, interval);
+      timeoutRef.current = setTimeout(
+        wrappedAsyncFunction,
+        interval
+      ) as unknown as number;
     }
     return () => {
+      clearTimeout(timeoutRef.current);
       mountedRef.current = false;
     };
   }, [asyncFunction, onSuccess]);

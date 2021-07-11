@@ -17,7 +17,7 @@ export function usePollWhileOnline(
   interval: number = 60000,
   immediate = true
 ): { activeRef: React.MutableRefObject<boolean> } {
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const timeoutRef = useRef<number>();
   const mountedRef = useRef(false);
   const activeRef = useRef(immediate);
 
@@ -42,7 +42,10 @@ export function usePollWhileOnline(
       );
     }
     if (mountedRef.current) {
-      timeoutRef.current = setTimeout(wrappedAsyncFunction, interval);
+      timeoutRef.current = setTimeout(
+        wrappedAsyncFunction,
+        interval
+      ) as unknown as number;
     }
     activeRef.current = false;
   };
@@ -52,9 +55,10 @@ export function usePollWhileOnline(
     if (immediate) {
       wrappedAsyncFunction();
     } else {
-      timeoutRef.current = setTimeout(wrappedAsyncFunction, interval);
+      timeoutRef.current = setTimeout(wrappedAsyncFunction, interval) as unknown as number;
     }
     return () => {
+      clearTimeout(timeoutRef.current);
       mountedRef.current = false;
     };
   }, []);

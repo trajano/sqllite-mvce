@@ -34,9 +34,9 @@ export function DataProvider({ children, databaseName }: PropsWithChildren<P>) {
   console.log("about to usePollWhileOnline");
   usePollWhileOnline(async () => {
     if (initialized) {
-      console.log("about to add");
+      console.log("> add");
       await dbRef.current.add(Date.now());
-      console.log("done add");
+      console.log("< add");
     }
   }, 10000);
   if (initialized) {
