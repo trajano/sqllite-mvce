@@ -23,16 +23,17 @@ export function usePollWhileOnline(
   const wrappedAsyncFunction = async () => {
     activeRef.current = true;
     const netInfo = await NetInfo.fetch();
-    const connected = netInfo.isConnected && (netInfo.isInternetReachable ?? true)
+    const connected =
+      netInfo.isConnected && (netInfo.isInternetReachable ?? true);
 
-    if (true || connected) {
+    if (connected) {
       try {
         await asyncFunction();
       } catch (e) {
-        console.error("Error in polling", e);
+        console.error("Error while polling", e);
       }
     } else {
-      console.log(
+      console.warn(
         "Connectivity check failed",
         netInfo.isConnected,
         netInfo.isInternetReachable

@@ -1,34 +1,53 @@
 import React, {
   createContext,
   PropsWithChildren,
-  useContext, useEffect, useRef
+  useContext,
+  useRef,
+  useState,
 } from "react";
-import { DataStore } from "./DataStore";
+import { Text, View } from "react-native";
+import { useAsyncSetEffect } from "../hooks/useAsyncSetEffect";
 import { usePollWhileOnline } from "../hooks/usePollWhiteOnline";
+import { DataStore } from "./DataStore";
 
 const DataContext = createContext<{ db?: DataStore }>({});
 
 type P = { databaseName: string };
 export function DataProvider({ children, databaseName }: PropsWithChildren<P>) {
   const dbRef = useRef<DataStore>(new DataStore());
-  useEffect(() => {
-    (async () => {
-      console.log("setup");
-      await dbRef.current.setup(databaseName);
-      console.log("setup done");
-    })();
-  }, []);
+  const [initialized, setInitialized] = useState(false);
 
-  usePollWhileOnline(async() => {
-    console.log("add");
-    await dbRef.current.add(Date.now());
-    console.log("add done");
-  }, 10000)
-  return (
-    <DataContext.Provider value={{ db: dbRef.current }}>
-      {children}
-    </DataContext.Provider>
+  console.log("about to useAsyncSetEffect");
+  useAsyncSetEffect(
+    async () => {
+      console.log("about to setup database");
+      await dbRef.current.setup(databaseName);
+      console.log("done setup database");
+    },
+    () => {
+      setInitialized(true);
+    },
+    []
   );
+  console.log("about to usePollWhileOnline");
+  usePollWhileOnline(async () => {
+    if (initialized) {
+      await dbRef.current.add(Date.now());
+    }
+  }, 10000);
+  if (initialized) {
+    return (
+      <DataContext.Provider value={{ db: dbRef.current }}>
+        {children}
+      </DataContext.Provider>
+    );
+  } else {
+    return (
+      <View>
+        <Text>Loading database</Text>
+      </View>
+    );
+  }
 }
 
 export function useData() {

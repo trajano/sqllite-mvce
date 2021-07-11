@@ -10,7 +10,6 @@ export function DataComponent() {
   usePollWhileOnlineWithSetEffect(
     async () => db?.query(),
     (result) => {
-      console.log("result", result)
       if (result) {
         setData(result);
       } else {

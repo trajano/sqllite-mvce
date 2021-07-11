@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from "react";
 
 /**
  * This starts an async function and executes another function that performs
@@ -11,14 +11,18 @@ import React, { useEffect, useRef } from 'react';
  *   function is resolved and the component is still mounted
  * @param deps
  */
-export function useAsyncSetEffect<T>(asyncFunction: (mountedRef: React.MutableRefObject<boolean>) => Promise<T>, onSuccess:(asyncResult: T) => void, deps : React.DependencyList = []) {
+export const useAsyncSetEffect = <T>(
+  asyncFunction: (mountedRef: React.MutableRefObject<boolean>) => Promise<T>,
+  onSuccess: (asyncResult: T) => void,
+  deps: React.DependencyList = []
+) => {
   const mountedRef = useRef(false);
-  if (typeof onSuccess !== 'function') {
-    throw new Error('onSuccess is not a function');
+  if (typeof onSuccess !== "function") {
+    throw new Error("onSuccess is not a function");
   }
-  useEffect(function effect() {
+  useEffect(() => {
     mountedRef.current = true;
-    (async function wrapped() {
+    (async () => {
       const asyncResult = await asyncFunction(mountedRef);
       if (mountedRef.current) {
         onSuccess(asyncResult);
@@ -27,5 +31,5 @@ export function useAsyncSetEffect<T>(asyncFunction: (mountedRef: React.MutableRe
     return () => {
       mountedRef.current = false;
     };
-  }, deps);
-}
+  }, [asyncFunction, onSuccess, ...deps]);
+};

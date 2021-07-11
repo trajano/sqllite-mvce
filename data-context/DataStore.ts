@@ -66,13 +66,11 @@ export class DataStore {
     });
   }
   async query(): Promise<StorageType[]> {
-    console.log("query");
     try {
       return this.db.rtxn(
         async (tx) => (await tx.q<StorageType>("select * from artifact"))
       );
     } finally {
-      console.log("query done");
     }
   }
 }

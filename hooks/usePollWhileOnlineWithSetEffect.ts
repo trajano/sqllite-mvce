@@ -13,7 +13,7 @@ import React, { useEffect, useRef } from "react";
  */
 export function usePollWhileOnlineWithSetEffect<T>(
   asyncFunction: () => PromiseLike<T>,
-  onSuccess: (result: T)=>void,
+  onSuccess: (result: T) => void,
   interval: number = 60000,
   immediate = true
 ): { activeRef: React.MutableRefObject<boolean> } {
@@ -24,25 +24,25 @@ export function usePollWhileOnlineWithSetEffect<T>(
   const wrappedAsyncFunction = async () => {
     activeRef.current = true;
     const netInfo = await NetInfo.fetch();
-    const connected = netInfo.isConnected && (netInfo.isInternetReachable ?? true)
+    const connected =
+      netInfo.isConnected && (netInfo.isInternetReachable ?? true);
 
-    if (true || connected) {
+    if (connected) {
       try {
         const result = await asyncFunction();
         if (mountedRef.current) {
           onSuccess(result);
         }
       } catch (e) {
-        console.error("Error in polling", e);
+        console.error("Error while polling", e);
       }
     } else {
-      console.log(
+      console.warn(
         "Connectivity check failed",
         netInfo.isConnected,
         netInfo.isInternetReachable
       );
     }
-    console.log("mounted", mountedRef)
     if (mountedRef.current) {
       timeoutRef.current = setTimeout(wrappedAsyncFunction, interval);
     }
