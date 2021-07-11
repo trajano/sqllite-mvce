@@ -20,9 +20,11 @@ export function DataProvider({ children, databaseName }: PropsWithChildren<P>) {
   console.log("about to useAsyncSetEffect");
   useAsyncSetEffect(
     async () => {
+      if (!initialized) {
       console.log("about to setup database");
       await dbRef.current.setup(databaseName);
       console.log("done setup database");
+      }
     },
     () => {
       setInitialized(true);
@@ -32,7 +34,9 @@ export function DataProvider({ children, databaseName }: PropsWithChildren<P>) {
   console.log("about to usePollWhileOnline");
   usePollWhileOnline(async () => {
     if (initialized) {
+      console.log("about to add");
       await dbRef.current.add(Date.now());
+      console.log("done add");
     }
   }, 10000);
   if (initialized) {

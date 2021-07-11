@@ -1,5 +1,7 @@
 import NetInfo from "@react-native-community/netinfo";
 import React, { useEffect, useRef } from "react";
+import Constants, { AppOwnership } from "expo-constants";
+import { Platform } from "react-native";
 
 /**
  * This will continously run a function with a delay per call (regardless of
@@ -25,7 +27,8 @@ export function usePollWhileOnlineWithSetEffect<T>(
     activeRef.current = true;
     const netInfo = await NetInfo.fetch();
     const connected =
-      netInfo.isConnected && (netInfo.isInternetReachable ?? true);
+      (Platform.OS === "ios" && Constants.appOwnership === AppOwnership.Expo) ||
+      (netInfo.isConnected && (netInfo.isInternetReachable ?? true));
 
     if (connected) {
       try {
