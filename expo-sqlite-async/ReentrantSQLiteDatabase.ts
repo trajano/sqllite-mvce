@@ -4,10 +4,13 @@ import type {
   SQLTransactionErrorCallback,
   SQLVoidCallback,
 } from 'expo-sqlite';
+import type {
+  AsyncSQLiteDatabase,
+  AsyncTransactionCallback,
+  ResultSetRows,
+} from './AsyncSQLiteDatabase';
 import { AsyncSQLTransaction } from './AsyncSQLTransaction';
-import type { ResultSetRows, SQLiteAsyncDatabase } from './SQLiteAsyncDatabase';
-
-type AsyncTransactionCallback<T> = (tx: AsyncSQLTransaction) => Promise<T>;
+import type { SQLiteAsyncDatabase } from './SQLiteAsyncDatabase';
 
 type OpenDatabaseFunction = () => Promise<SQLiteAsyncDatabase>;
 
@@ -16,7 +19,7 @@ type OpenDatabaseFunction = () => Promise<SQLiteAsyncDatabase>;
  * at the expense that every transaction starts a new database connection
  * as transactions cannot be nested.
  */
-export class ReentrantSQLiteDatabase {
+export class ReentrantSQLiteDatabase implements AsyncSQLiteDatabase {
   /**
    *
    * @param openDbFn function called to open a database.

@@ -1,5 +1,11 @@
 import { openDatabaseAsync, SQLiteAsyncDatabase } from "../expo-sqlite-async";
 
+export type StorageType = {
+  id: number;
+  encryptedArtifactId: string;
+  name: string;
+  purge: boolean;
+};
 export class DataStore {
   private db!: SQLiteAsyncDatabase;
   async setup(name: string) {
@@ -59,10 +65,14 @@ export class DataStore {
       );
     });
   }
-  async query(): Promise<any[]> {
+  async query(): Promise<StorageType[]> {
     console.log("query");
-    return this.db.rtxn(
-      async (tx) => (await tx.executeSqlAsync("select * from artifact")).rows
-    );
+    try {
+      return this.db.rtxn(
+        async (tx) => (await tx.q<StorageType>("select * from artifact"))
+      );
+    } finally {
+      console.log("query done");
+    }
   }
 }

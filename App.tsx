@@ -11,7 +11,7 @@ import { DataComponent } from "./DataComponent";
 export default function App() {
   return (
     <SafeAreaProvider>
-      <DataProvider databaseName="foo">
+      <DataProvider databaseName="fooba">
         <SafeAreaInsetsContext.Consumer>
           {(insets) => (
             <View style={[{ paddingTop: insets!.top }, styles.container]}>

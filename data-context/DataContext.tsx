@@ -1,44 +1,31 @@
 import React, {
   createContext,
   PropsWithChildren,
-  useContext,
-  useRef,
-  useState,
+  useContext, useEffect, useRef
 } from "react";
-import { useAsyncSetEffect } from "../hooks/useAsyncSetEffect";
-import { usePollWhileOnline } from "../hooks/usePollWhiteOnline";
 import { DataStore } from "./DataStore";
+import { usePollWhileOnline } from "../hooks/usePollWhiteOnline";
 
-const DataContext = createContext<{ db: DataStore }>({
-  db: new DataStore()
-});
+const DataContext = createContext<{ db?: DataStore }>({});
 
 type P = { databaseName: string };
 export function DataProvider({ children, databaseName }: PropsWithChildren<P>) {
-  const dbRef = useRef<DataStore>();
-  const activeRef = useRef(true);
-  useAsyncSetEffect(
-    async () => {
-      console.log("setup")
+  const dbRef = useRef<DataStore>(new DataStore());
+  useEffect(() => {
+    (async () => {
+      console.log("setup");
       await dbRef.current.setup(databaseName);
-    },
-    (q) => {
-      console.log(q)
-      activeRef.current = false;
-    },
-    []
-  );
-  usePollWhileOnline(async () => {
-    console.log("poll", activeRef.current)
-    if (activeRef.current) {
-      return;
-    }
-    activeRef.current = true;
+      console.log("setup done");
+    })();
+  }, []);
+
+  usePollWhileOnline(async() => {
+    console.log("add");
     await dbRef.current.add(Date.now());
-    activeRef.current = false;
-  }, 10000, false);
+    console.log("add done");
+  }, 10000)
   return (
-    <DataContext.Provider value={{  db: dbRef.current }}>
+    <DataContext.Provider value={{ db: dbRef.current }}>
       {children}
     </DataContext.Provider>
   );

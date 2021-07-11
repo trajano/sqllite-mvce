@@ -25,7 +25,7 @@ export function usePollWhileOnline(
     const netInfo = await NetInfo.fetch();
     const connected = netInfo.isConnected && (netInfo.isInternetReachable ?? true)
 
-    if (connected) {
+    if (true || connected) {
       try {
         await asyncFunction();
       } catch (e) {
@@ -45,6 +45,7 @@ export function usePollWhileOnline(
   };
 
   useEffect(() => {
+    mountedRef.current = true;
     if (immediate) {
       wrappedAsyncFunction();
     } else {

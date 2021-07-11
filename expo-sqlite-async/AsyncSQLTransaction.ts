@@ -1,5 +1,5 @@
 import type { ResultSet, ResultSetError, WebSQLDatabase } from 'expo-sqlite';
-import type { ResultSetRows } from './SQLiteAsyncDatabase';
+import type { ResultSetRows } from './AsyncSQLiteDatabase';
 
 export class AsyncSQLTransaction {
   constructor(private db: WebSQLDatabase, private readOnly = false) {}

@@ -1,3 +1,4 @@
+import { Mutex } from 'async-mutex';
 import type {
   Query,
   ResultSet,
@@ -8,21 +9,22 @@ import type {
   SQLVoidCallback,
   WebSQLDatabase,
 } from 'expo-sqlite';
+import type {
+  AsyncSQLiteDatabase,
+  AsyncTransactionCallback,
+  ResultSetRows,
+} from './AsyncSQLiteDatabase';
 import { AsyncSQLTransaction } from './AsyncSQLTransaction';
 
-type AsyncTransactionCallback<T> = (tx: AsyncSQLTransaction) => Promise<T>;
-/**
- * Typesafe version of result set row.
- */
-export type ResultSetRow<T extends Record<string, unknown>> = T;
-export type ResultSetRows<T extends Record<string, unknown>> =
-  ResultSetRow<T>[];
-
-export class SQLiteAsyncDatabase implements WebSQLDatabase {
+export class SQLiteAsyncDatabase
+  implements WebSQLDatabase, AsyncSQLiteDatabase
+{
   version: string;
+  private mutex: Mutex;
 
   constructor(private db: WebSQLDatabase) {
     this.version = db.version;
+    this.mutex = new Mutex();
   }
   /**
    * Forwards to existing database to use WebSQL transactions.
@@ -66,6 +68,8 @@ export class SQLiteAsyncDatabase implements WebSQLDatabase {
    * @param callback callback function that would get a transaction that provides async capability.  The return value of the callback will be the return value of this method.
    */
   async txn<T>(callback: AsyncTransactionCallback<T>): Promise<T> {
+    const release = await this.mutex.acquire();
+
     try {
       await this.executeSqlAsync('begin immediate transaction');
       const tx = new AsyncSQLTransaction(this);
@@ -75,6 +79,8 @@ export class SQLiteAsyncDatabase implements WebSQLDatabase {
     } catch (error) {
       await this.executeSqlAsync('rollback');
       throw error;
+    } finally {
+      release();
     }
   }
   /**
@@ -82,6 +88,8 @@ export class SQLiteAsyncDatabase implements WebSQLDatabase {
    * @param callback callback function that would get a transaction that provides async capability.  The return value of the callback will be the return value of this method.
    */
   async rtxn<T>(callback: AsyncTransactionCallback<T>): Promise<T> {
+    const release = await this.mutex.acquire();
+
     try {
       await this.executeSqlAsync('begin immediate transaction');
       const tx = new AsyncSQLTransaction(this, true);
@@ -91,6 +99,8 @@ export class SQLiteAsyncDatabase implements WebSQLDatabase {
     } catch (error) {
       await this.executeSqlAsync('rollback');
       throw error;
+    } finally {
+      release();
     }
   }
 
